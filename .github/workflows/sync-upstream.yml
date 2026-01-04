@@ -33,12 +33,12 @@ jobs:
           git fetch origin
 
       # 方法B：合并 upstream 到 master（保留 origin 的独立提交）
-      - name: Merge upstream into master
+      - name: Merge upstream into main
         run: |
-          git checkout master
-          git merge upstream/master --no-edit
+          git checkout main
+          git merge upstream/main --no-edit
 
       # 推送到你的仓库
       - name: Push merged result to origin
         run: |
-          git push origin master
+          git push origin main
