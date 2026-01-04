@@ -1,0 +1,44 @@
+name: Sync Upstream
+
+on:
+  workflow_dispatch: # 手动触发
+  schedule:
+    - cron: "0 19 * * *" # 每天(utc)凌晨3点自动同步（可自行设置）
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout your repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 必须拉取完整历史
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # 配置 Git 信息
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # 添加 upstream（如果不存在），并拉取 origin 的最新状态
+      - name: Add upstream remote and fetch
+        run: |
+          git remote add upstream https://github.com/Dapp-Learning-DAO/Dapp-Learning || true
+          git fetch upstream
+          git fetch origin
+
+      # 方法B：合并 upstream 到 master（保留 origin 的独立提交）
+      - name: Merge upstream into master
+        run: |
+          git checkout master
+          git merge upstream/master --no-edit
+
+      # 推送到你的仓库
+      - name: Push merged result to origin
+        run: |
+          git push origin master
